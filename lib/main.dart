@@ -13,16 +13,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
+      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
       home: const QuizHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class QuizHomePage extends StatefulWidget
-{
+class QuizHomePage extends StatefulWidget {
   const QuizHomePage({super.key, required this.title});
 
   final String title;
@@ -33,9 +30,7 @@ class QuizHomePage extends StatefulWidget
   }
 }
 
-class _QuizHomePageState extends State<QuizHomePage>
-{
-
+class _QuizHomePageState extends State<QuizHomePage> {
   int _currentQuestionIndex = 0;
 
   int? _selectedOptionIndex;
@@ -44,9 +39,7 @@ class _QuizHomePageState extends State<QuizHomePage>
 
   bool _showResult = false;
 
-
   Question get _currentQuestion => sampleQuestions[_currentQuestionIndex];
-
 
   @override
   Widget build(BuildContext context) {
@@ -55,75 +48,124 @@ class _QuizHomePageState extends State<QuizHomePage>
         title: Text("QuizApp"),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: _showResult ? _buildResultScreen() : _buildQuestionScreen()
-      );
+      body: _showResult ? _buildResultScreen() : _buildQuestionScreen(),
+    );
   }
+
+  Widget _buildResultScreen() {
+    return Column(
+      children: [
+        Padding(
+          padding: .all(20),
+          child: Center(
+            child: Text("Вы закончили тест! Ваш результат $_score из ${_currentQuestionIndex+1}", style: TextStyle(fontSize: 30)),
+          ),
+        ),
+        ElevatedButton(onPressed: startAgain, child: Text("Начать сначала"))]
+    );
   
-  Widget _buildResultScreen()
-  {
-    return Text(_currentQuestion.text);
   }
-  
-  Widget _buildQuestionScreen() 
-  {
+
+  Widget _buildQuestionScreen() {
     // return Center(
     //   child: Text(_currentQuestion.text)
     // );
     return Column(
       children: [
-        Center(
-          child: Text(_currentQuestion.text)
+        Padding(
+          padding: .all(20),
+          child: Center(
+            child: Text(_currentQuestion.text, style: TextStyle(fontSize: 30)),
+          ),
         ),
         Expanded(
           child: ListView.builder(
-              itemBuilder: (BuildContext context, int item){
-                  return Padding(
-                    padding: .all(10),
-                    child: GestureDetector(
-                      onTap: () => setState(() {
-                        _selectedOptionIndex = item;
-                      }),
+            itemBuilder: (BuildContext context, int item) {
+              return Padding(
+                padding: .all(10),
+                child: GestureDetector(
+                  onTap: () => setState(() {
+                    _selectedOptionIndex = item;
+                  }),
+                  child: Center(
+                    child: Container(
+                      width: 300,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: item == _selectedOptionIndex
+                            ? Color.fromRGBO(101, 105, 128, 1)
+                            : Color.fromRGBO(38, 59, 179, 1),
+                      ),
+                      height: 50,
                       child: Center(
-                        child: 
-                        Container(
-                            width: 300,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: item == _selectedOptionIndex ? Color.fromRGBO(101, 105, 128, 1) : Color.fromRGBO(38, 59, 179, 1)
-                            ),
-                            height: 50,
-                            child: Center(child: Text(
-                            style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
-                            _currentQuestion.options[item])),
-                          )
-                        )
-                  )
-                );
-              },
-              itemCount: _currentQuestion.options.length,
-              ))
-        
+                        child: Text(
+                          style: TextStyle(
+                            color: Color.fromRGBO(255, 255, 255, 1),
+                          ),
+                          _currentQuestion.options[item],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+            itemCount: _currentQuestion.options.length,
+          ),
+        ),
+        Padding(
+          padding: .all(20),
+          child: Center(
+            child: Row(
+              mainAxisSize: .min,
+              // mainAxisAlignment: .spaceBetween,
+              spacing: 70,
+              children: [
+                
+                ElevatedButton(child: Text("Начать сначала"), onPressed: () => startAgain(),),
+                ElevatedButton(child: Text("Продолжить"), onPressed: () => NextQuestion(),),
+              ],
+            ),
+          ),
+        ),
       ],
-      );
+    );
   }
+  void startAgain()
+    {
+      setState(() {
+        _selectedOptionIndex = null;
+        _score = 0;
+        _currentQuestionIndex = 0;
+        _showResult = false;
+      });
+    }
 
-
-
-  void NextQuestion()
-  {
+  void NextQuestion() {
     if (_selectedOptionIndex == null)
     {
       return;
     }
-    else if (_currentQuestion.isCorrect(_selectedOptionIndex!))
-    {
-      setState(() {
-        _currentQuestionIndex++;
-        _score++;
+
+    if (_currentQuestion.isCorrect(_selectedOptionIndex!)) {
+        setState(() {
+          _score++;
+          _selectedOptionIndex = null;
+          if (_currentQuestionIndex > sampleQuestions.length-2)
+            {
+              _showResult = true;
+              return;
+            }
+          _currentQuestionIndex++;
       });
-    }
-    else{
+    } else {
       setState(() {
+        _selectedOptionIndex = null;
+        if (_currentQuestionIndex > sampleQuestions.length-2)
+          {
+            _showResult = true;
+            return;
+          }
         _currentQuestionIndex++;
       });
     }
