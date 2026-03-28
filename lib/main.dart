@@ -75,20 +75,30 @@ class _QuizHomePageState extends State<QuizHomePage>
           child: Text(_currentQuestion.text)
         ),
         Expanded(
-          child: 
-            ListView.builder(
+          child: ListView.builder(
               itemBuilder: (BuildContext context, int item){
-                return Padding(
-                  padding: .all(10),
-                  child: Container(
-                  width: 200,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Color.fromRGBO(101, 105, 128, 1)
-                  ),
-                  height: 50,
-                  child: Center(child: Text(_currentQuestion.options[item])),
-                ));
+                  return Padding(
+                    padding: .all(10),
+                    child: GestureDetector(
+                      onTap: () => setState(() {
+                        _selectedOptionIndex = item;
+                      }),
+                      child: Center(
+                        child: 
+                        Container(
+                            width: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: item == _selectedOptionIndex ? Color.fromRGBO(101, 105, 128, 1) : Color.fromRGBO(38, 59, 179, 1)
+                            ),
+                            height: 50,
+                            child: Center(child: Text(
+                            style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
+                            _currentQuestion.options[item])),
+                          )
+                        )
+                  )
+                );
               },
               itemCount: _currentQuestion.options.length,
               ))
